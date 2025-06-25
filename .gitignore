@@ -1,14 +1,9 @@
-// Массив разрешенных доменов (12 платформ)
-const allowedDomains = [
-  'github.com',     
-  'coursera.org',    
-  'stackoverflow.com' 
-  // ... остальные из списка
-];
-
-// Проверка URL через URLPattern API (Manifest V3)
-const isEducationalSite = (url) => {
-  return allowedDomains.some(domain => 
-    new URLPattern({ hostname: domain }).test(url)
-  );
-};
+// Сохранение данных при отсутствии сети
+async function saveActivity(data) {
+  if (!navigator.onLine) {
+    await indexedDB.add('activities', data); // IndexedDB
+    showToast('Данные сохранены для отправки позже');
+  } else {
+    sendToServer(data); // Немедленная отправка
+  }
+}
