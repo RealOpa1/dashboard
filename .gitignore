@@ -1,9 +1,10 @@
-// Сохранение данных при отсутствии сети
-async function saveActivity(data) {
-  if (!navigator.onLine) {
-    await indexedDB.add('activities', data); 
-    showToast('Данные сохранены для отправки позже');
-  } else {
-    sendToServer(data); 
+// Раз в 15 минут (фоновый режим)
+chrome.alarms.create('sync', { periodInMinutes: 15 });
+
+chrome.alarms.onAlarm.addListener(async () => {
+  const unsyncedData = await indexedDB.getAll('activities');
+  if (unsyncedData.length > 0) {
+    await sendBatchToServer(unsyncedData); 
+    await indexedDB.clear('activities'); 
   }
-}
+});
